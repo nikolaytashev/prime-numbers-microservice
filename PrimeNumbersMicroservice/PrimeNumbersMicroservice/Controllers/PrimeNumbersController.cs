@@ -4,6 +4,8 @@ using System.Linq;
 using System.Net;
 using System.Numerics;
 using System.Threading.Tasks;
+using Application.Queries;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
@@ -15,10 +17,12 @@ namespace PrimeNumbersMicroservice.Controllers
     public class PrimeNumbersController : ControllerBase
     {
         private readonly IPrimeNumbersService primeNumbersService;
+        private readonly IMediator mediator;
 
-        public PrimeNumbersController(IPrimeNumbersService primeNumbersService)
+        public PrimeNumbersController(IPrimeNumbersService primeNumbersService, IMediator mediator)
         {
             this.primeNumbersService = primeNumbersService;
+            this.mediator = mediator;
         }
 
         /// <summary>
@@ -33,12 +37,12 @@ namespace PrimeNumbersMicroservice.Controllers
         [HttpGet("{number}/check")]
         [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public IActionResult ValidatePrime([FromRoute] string number)
+        public async Task<IActionResult> ValidatePrime([FromRoute] string number)
         {
             if (!BigInteger.TryParse(number, out BigInteger value))
                 return BadRequest("Invalid number");
 
-            bool result = primeNumbersService.Validate(value);
+            bool result = await mediator.Send(new ValidatePrimeNumberQuery(value));
             return Ok(result);
         }
 
@@ -54,12 +58,12 @@ namespace PrimeNumbersMicroservice.Controllers
         [HttpGet("{number}/next")]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public IActionResult GetNextNumber([FromRoute] string number)
+        public async Task<IActionResult> GetNextNumber([FromRoute] string number)
         {
             if (!BigInteger.TryParse(number, out BigInteger value))
                 return BadRequest("Invalid number");
 
-            BigInteger result = primeNumbersService.GetNextPrime(value);
+            BigInteger result = await mediator.Send(new GetNextPrimeNumberQuery(value));
             return Ok(result.ToString());
         }
     }

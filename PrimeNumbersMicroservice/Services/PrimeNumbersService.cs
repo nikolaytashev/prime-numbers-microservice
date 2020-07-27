@@ -6,14 +6,55 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Services
 {
     public class PrimeNumbersService : IPrimeNumbersService
     {
         private const int NegativeSignNumber = -1;
-        
-        public bool Validate(BigInteger value)
+        private IMemoryCache cache;
+
+        public PrimeNumbersService(IMemoryCache cache)
+        {
+            this.cache = cache;
+        }
+
+        public Task<bool> ValidateAsync(BigInteger value)
+        {
+            return Task.FromResult(Validate(value));
+        }
+
+        public Task<BigInteger> GetNextPrimeAsync(BigInteger value)
+        {
+            return Task.FromResult(GetNextPrime(value));
+        }
+
+        private BigInteger GetNextPrime(BigInteger value)
+        {
+            if (value.IsEven)
+                value = BigInteger.Subtract(value, 1);
+
+            while (true)
+            {
+                value = BigInteger.Add(value, 2);
+                if (Validate(value))
+                    return value;
+            }
+        }
+
+        private bool Validate(BigInteger value)
+        {
+            if (cache.TryGetValue(value, out bool result))
+                return result;
+
+            result = ValidatePrimeNumber(value);
+            cache.Set(value, result, new MemoryCacheEntryOptions().SetPriority(CacheItemPriority.NeverRemove));
+
+            return result;
+        }
+
+        private bool ValidatePrimeNumber(BigInteger value)
         {
             if (value.Sign == NegativeSignNumber || value.IsZero || value.IsOne)
                 return false;
@@ -49,19 +90,6 @@ namespace Services
                 });
 
             return !hasDividerWithRemainder;
-        }
-
-        public BigInteger GetNextPrime(BigInteger value)
-        {
-            if (value.IsEven)
-                value = BigInteger.Subtract(value, 1);
-
-            while (true)
-            {
-                value = BigInteger.Add(value, 2);
-                if (Validate(value))
-                    return value;
-            }
         }
     }
 }
