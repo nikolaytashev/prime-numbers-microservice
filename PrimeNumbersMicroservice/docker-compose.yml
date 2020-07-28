@@ -1,0 +1,10 @@
+version: '3.4'
+
+services:
+  primenumbersmicroservice:
+    image: ${DOCKER_REGISTRY-}primenumbersmicroservice:final
+    build:
+      context: .
+      dockerfile: PrimeNumbersMicroservice/Dockerfile
+    ports:
+      - "8080:80"

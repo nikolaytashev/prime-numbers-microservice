@@ -18,9 +18,10 @@ namespace Services
         {
             while (true)
             {
-                value = BigInteger.Add(value, 1);
                 if (CheckPrimeNumber(value))
                     return value;
+
+                value = BigInteger.Add(value, 1);
             }
         }
 
