@@ -1,40 +1,53 @@
-﻿using System;
+﻿using Core.Common;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
-using System.Text;
 
 namespace Core.Extensions
 {
     public static class BigIntegerExtensions
     {
-        public static BigInteger Sqrt(this BigInteger value)
+        /// <summary>
+        /// Checks whether the given number is prime
+        /// </summary>
+        /// <param name="useParallel">true to enables parallelization of the operation, otherwise - false</param>
+        /// <returns>true if number is prime, otherwise - false</returns>
+        public static bool IsPrimeNumber(this BigInteger value, bool useParallel = false)
         {
-            if (value == 0) 
-                return 0;
+            if (value.Sign == Constants.NegativeSignNumber || value.IsZero || value.IsOne)
+                return false;
 
-            if (value > 0)
+            if (Constants.MinimumValueDividers.Any(item => value == item))
+                return true;
+
+            if (Constants.MinimumValueDividers.Any(item => BigInteger.Remainder(value, item) == 0))
+                return false;
+
+            BigInteger boundary = value.Sqrt();
+
+            IEnumerable<BigInteger> enumerable = LinqExtensions.RangeWithStep(Constants.ValidationStepSize, boundary, (index) => BigInteger.Add(index, Constants.ValidationStepSize));
+            if (useParallel)
+                enumerable = enumerable.AsParallel();
+
+            bool hasDividerWithNoRemainder = enumerable.Any(index =>
             {
-                int bitLength = Convert.ToInt32(Math.Ceiling(BigInteger.Log(value, 2)));
-                BigInteger root = BigInteger.One << (bitLength / 2);
+                if (BigInteger.Remainder(value, index + 1) == 0 || BigInteger.Remainder(value, index + 5) == 0)
+                    return true;
 
-                while (!IsSqrt(value, root))
-                {
-                    root += value / root;
-                    root /= 2;
-                }
+                return false;
+            });
 
-                return root;
-            }
-
-            throw new ArithmeticException("Unsupported operation");
+            return !hasDividerWithNoRemainder;
         }
 
-        private static bool IsSqrt(BigInteger value, BigInteger root)
+        /// <summary>
+        /// Square root of the given number
+        /// </summary>
+        /// <returns>Returns the square root of the given number</returns>
+        public static BigInteger Sqrt(this BigInteger value)
         {
-            BigInteger lowerBound = root * root;
-            BigInteger upperBound = (root + 1) * (root + 1);
-
-            return (value >= lowerBound && value < upperBound);
+            return (BigInteger)Math.Exp(BigInteger.Log(value) / 2);
         }
     }
 }

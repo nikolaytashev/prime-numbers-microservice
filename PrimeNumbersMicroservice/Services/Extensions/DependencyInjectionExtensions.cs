@@ -1,8 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Services.Extensions
 {
@@ -11,6 +8,7 @@ namespace Services.Extensions
         public static void AddServices(this IServiceCollection services)
         {
             services.AddScoped<IPrimeNumbersService, PrimeNumbersService>();
+            services.AddScoped<IPrimeNumbersCacheService, PrimeNumbersCacheService>();
         }
     }
 }

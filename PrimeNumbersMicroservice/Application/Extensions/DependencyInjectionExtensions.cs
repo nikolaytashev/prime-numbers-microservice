@@ -1,9 +1,8 @@
-﻿using MediatR;
+﻿using Application.PipeLineBehavior;
+using FluentValidation;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 
 namespace Application.Extensions
 {
@@ -12,6 +11,12 @@ namespace Application.Extensions
         public static void AddMediator(this IServiceCollection services)
         {
             services.AddMediatR(Assembly.GetExecutingAssembly());
+        }
+
+        public static void AddValidators(this IServiceCollection services)
+        {
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+            services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         }
     }
 }

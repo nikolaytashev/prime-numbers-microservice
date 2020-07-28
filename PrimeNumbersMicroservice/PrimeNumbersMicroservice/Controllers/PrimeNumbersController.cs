@@ -1,48 +1,47 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
+﻿using System.Net;
 using System.Numerics;
 using System.Threading.Tasks;
 using Application.Queries;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Services.Interfaces;
 
 namespace PrimeNumbersMicroservice.Controllers
 {
+    /// <summary>
+    /// Web API Controller for managing prime numbers
+    /// </summary>
     [Route("api/primes")]
     [ApiController]
     public class PrimeNumbersController : ControllerBase
     {
-        private readonly IPrimeNumbersService primeNumbersService;
         private readonly IMediator mediator;
 
-        public PrimeNumbersController(IPrimeNumbersService primeNumbersService, IMediator mediator)
+        /// <summary>
+        /// Constructs the PrimeNumbersController
+        /// </summary>
+        public PrimeNumbersController(IMediator mediator)
         {
-            this.primeNumbersService = primeNumbersService;
             this.mediator = mediator;
         }
 
         /// <summary>
-        /// Validates whether the given number is prime or not
+        /// Checks whether the given number is prime or not
         /// </summary>
         /// <param name="number"></param>
-        /// <returns>Returns if the number is prime or not</returns>
+        /// <returns>True if the number is prime, otherwise - false</returns>
         /// <remarks>
-        /// Return 500 if the number is in invalid format
+        /// Returns 500 if the number is in invalid format
         /// </remarks>
-        /// <response code="200">Returns if the number is prime or not</response>
+        /// <response code="200">True if the number is prime, otherwise - false</response>
         [HttpGet("{number}/check")]
         [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> ValidatePrime([FromRoute] string number)
+        public async Task<IActionResult> CheckPrimeNumber([FromRoute] string number)
         {
             if (!BigInteger.TryParse(number, out BigInteger value))
                 return BadRequest("Invalid number");
 
-            bool result = await mediator.Send(new ValidatePrimeNumberQuery(value));
+            bool result = await mediator.Send(new CheckPrimeNumberQuery(value));
             return Ok(result);
         }
 
@@ -52,7 +51,7 @@ namespace PrimeNumbersMicroservice.Controllers
         /// <param name="number"></param>
         /// <returns>The next prime number</returns>
         /// <remarks>
-        /// Return 500 if the number is in invalid format
+        /// Returns 500 if the number is in invalid format
         /// </remarks>
         /// <response code="200">Returns the next prime number</response>
         [HttpGet("{number}/next")]
@@ -62,7 +61,7 @@ namespace PrimeNumbersMicroservice.Controllers
         {
             if (!BigInteger.TryParse(number, out BigInteger value))
                 return BadRequest("Invalid number");
-
+            
             BigInteger result = await mediator.Send(new GetNextPrimeNumberQuery(value));
             return Ok(result.ToString());
         }

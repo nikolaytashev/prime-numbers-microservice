@@ -7,7 +7,11 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR /src
+COPY ["PrimeNumbersMicroservice.sln", "PrimeNumbersMicroservice.sln"]
 COPY ["PrimeNumbersMicroservice/PrimeNumbersMicroservice.csproj", "PrimeNumbersMicroservice/"]
+COPY ["Application/Application.csproj", "Application/"]
+COPY ["Services/Services.csproj", "Services/"]
+COPY ["Core/Core.csproj", "Core/"]
 RUN dotnet restore "PrimeNumbersMicroservice/PrimeNumbersMicroservice.csproj"
 COPY . .
 WORKDIR "/src/PrimeNumbersMicroservice"

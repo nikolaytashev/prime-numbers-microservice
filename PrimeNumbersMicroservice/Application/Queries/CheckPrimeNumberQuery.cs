@@ -3,11 +3,11 @@ using System.Numerics;
 
 namespace Application.Queries
 {
-    public class GetNextPrimeNumberQuery : IRequest<BigInteger>
+    public class CheckPrimeNumberQuery : IRequest<bool>
     {
         public BigInteger Value { get; }
 
-        public GetNextPrimeNumberQuery(BigInteger value)
+        public CheckPrimeNumberQuery(BigInteger value)
         {
             this.Value = value;
         }
