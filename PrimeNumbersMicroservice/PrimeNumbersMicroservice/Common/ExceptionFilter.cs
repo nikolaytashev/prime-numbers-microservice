@@ -28,7 +28,7 @@ namespace PrimeNumbersMicroservice.Common
             var m = (ValidationException)context.Exception;
             context.Result = context.Exception switch
             {
-                ValidationException validationException => new BadRequestObjectResult(string.Join("/", validationException.Errors)) { StatusCode = (int)HttpStatusCode.InternalServerError },
+                ValidationException validationException => new BadRequestObjectResult(string.Join("/", validationException.Errors)),
                 _ => new ObjectResult(context.Exception.Message) { StatusCode = (int)HttpStatusCode.InternalServerError },
             };
 
